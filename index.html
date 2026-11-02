@@ -18,7 +18,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text"
 .screen.on{display:block;animation:in .65s var(--ease) both}
 .screen.out{display:block;animation:out .28s ease both}
 @keyframes in{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
-@keyframes out{to{opacity:0;transform:translateY(-10px)}}
+@keyframes out{to{opacity:0;transform:translateY(-10px);filter:blur(4px)}}
 .heart{display:inline-block;color:var(--sb);font-size:22px;margin-bottom:12px;animation:float 4s ease-in-out infinite}
 .heart.beat{font-size:44px;color:var(--ol);animation:beat 1.4s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-5px)}}
@@ -28,8 +28,8 @@ h1{font-size:clamp(26px,7vw,32px)}h2{font-size:clamp(23px,6vw,28px)}
 .sub{color:var(--mu);font-size:16px;line-height:1.55;margin:12px 0 24px}
 .reveal span{display:inline-block;opacity:0;transform:translateY(8px);animation:in .6s var(--ease) forwards}
 .chip{display:inline-block;background:var(--bb);color:var(--dol);border-radius:99px;padding:4px 12px;font-size:13px;font-weight:600;margin-bottom:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-input{width:100%;font:inherit;font-size:17px;padding:15px 16px;border-radius:16px;border:1px solid rgba(63,76,54,.16);background:var(--w);color:var(--tx);outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:14px}
-input:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
+input,textarea{width:100%;font:inherit;font-size:17px;padding:15px 16px;border-radius:16px;border:1px solid rgba(63,76,54,.16);background:var(--w);color:var(--tx);outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:14px}
+input:focus,textarea:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
 .btn{display:block;width:100%;font:inherit;font-size:17px;font-weight:600;padding:16px 18px;border-radius:99px;border:0;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s,background .2s,opacity .2s;margin-top:10px;min-height:54px}
 .btn.p{color:#fff;background:linear-gradient(180deg,var(--ol),var(--dol));box-shadow:0 8px 20px -8px rgba(63,76,54,.6)}
 .btn.s{color:var(--dol);background:rgba(204,233,247,.7);border:1px solid rgba(123,184,220,.5)}
@@ -70,7 +70,7 @@ input:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
 #fx span.pt{bottom:auto;top:-30px;color:var(--ol);animation:fall var(--t) ease-in var(--dl) forwards}
 @keyframes rise{10%{opacity:.5}90%{opacity:.3}100%{opacity:0;transform:translate(var(--x),-110vh) rotate(40deg)}}
 @keyframes fall{0%{opacity:0}10%{opacity:.85}100%{opacity:0;transform:translate(var(--x),108vh) rotate(var(--r))}}
-#tree{position:fixed;left:50%;bottom:0;height:min(84vh,920px);width:auto;transform:translateX(-50%);z-index:0;pointer-events:none;overflow:visible}
+#tree{position:fixed;left:50%;bottom:0;height:min(84vh,920px);width:calc(min(84vh,920px)*.8);transform:translateX(-50%);z-index:0;pointer-events:none;overflow:visible}
 .sway{transform-origin:200px 500px;animation:sway 9s ease-in-out infinite}
 @keyframes sway{50%{transform:rotate(1.2deg)}}
 .br{fill:none;stroke:var(--ol);stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset 1.9s var(--ease),opacity .2s}
@@ -79,6 +79,40 @@ input:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
 .lf.on{opacity:.9;transform:scale(1)}
 .lf.on.pu{animation:pulse 3.2s ease-in-out var(--d) infinite}
 @keyframes pulse{50%{transform:scale(1.28)}}
+textarea{resize:none;min-height:100px;line-height:1.5;text-align:left;display:block}
+.note{font-size:14px;color:var(--dol);line-height:1.55;margin:0 0 12px;background:rgba(204,233,247,.5);border-radius:16px;padding:11px 14px;text-align:left}
+@property --a{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes spin{to{--a:360deg}}
+body::before,body::after{content:"";position:fixed;width:46vmax;height:46vmax;border-radius:50%;filter:blur(70px);opacity:.5;z-index:0;pointer-events:none;animation:drift 20s ease-in-out infinite alternate}
+body::before{background:var(--bb);top:-18vmax;right:-14vmax}
+body::after{background:#dfe8d2;bottom:-20vmax;left:-16vmax;animation-delay:-8s}
+@keyframes drift{to{transform:translate(-6vmax,5vmax) scale(1.18)}}
+.card{animation:cardIn 1.1s var(--ease) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96);filter:blur(8px)}}
+.card::before{content:"";position:absolute;inset:-1px;border-radius:31px;padding:1.5px;background:conic-gradient(from var(--a),transparent 0,var(--sb) 15%,transparent 40%,var(--ol) 65%,transparent 85%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:spin 9s linear infinite;opacity:.75;pointer-events:none}
+.bar i{position:relative;overflow:hidden}
+.bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);transform:translateX(-100%);animation:slide 2.4s ease-in-out infinite}
+@keyframes slide{to{transform:translateX(100%)}}
+.btn{animation:in .7s var(--ease) .35s both}
+.btn.s{animation-delay:.5s}
+.btn.p{position:relative;overflow:hidden;animation:in .7s var(--ease) .35s both,breathe 3.2s ease-in-out 1.3s infinite}
+.btn.p::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent);transform:skewX(-20deg);animation:shine 4s ease-in-out 1.5s infinite}
+@keyframes shine{0%,55%{left:-60%}100%{left:140%}}
+@keyframes breathe{50%{box-shadow:0 12px 30px -6px rgba(102,118,83,.8)}}
+#next5{animation:none}#next5.show{animation:breathe 3.2s ease-in-out infinite}
+.heart{position:relative}
+.heart::after{content:"";position:absolute;left:50%;top:50%;width:1em;height:1em;margin:-.5em 0 0 -.5em;border:1px solid var(--sb);border-radius:50%;animation:ring 3s ease-out infinite}
+@keyframes ring{from{transform:scale(.6);opacity:.7}to{transform:scale(3.4);opacity:0}}
+.final .heart{font-size:60px;color:var(--ol);animation:beat 1.4s ease-in-out infinite;margin-bottom:18px}
+@keyframes glow{50%{text-shadow:0 0 22px rgba(123,184,220,.7)}}
+#fh,#t2.done{animation:glow 3.4s ease-in-out infinite}
+#fx span.sp{bottom:auto;color:var(--sb);animation:twink var(--t) ease-in-out var(--dl) infinite}
+@keyframes twink{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:.85;transform:scale(1.1) rotate(25deg)}}
+.bst,.trl{position:fixed;pointer-events:none;z-index:20}
+.bst{color:var(--ol);animation:burst 1s ease-out forwards}
+.trl{color:var(--sb);animation:trail 1.1s ease-out forwards}
+@keyframes burst{from{opacity:1;transform:translate(-50%,-50%) scale(.6)}to{opacity:0;transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by))) scale(1.3) rotate(var(--r))}}
+@keyframes trail{from{opacity:.7;transform:translate(-50%,-50%)}to{opacity:0;transform:translate(-50%,calc(-50% - 28px)) scale(.4)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -130,6 +164,9 @@ input:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
  <div class="heart beat" aria-hidden="true">♡</div>
  <h2>Tumi ki amake shotti shotti bhalobasho?</h2>
  <p class="sub">Mon theke bolo. Tomar answer amar kache important. ♡</p>
+ <p class="note">Tumi ja bolte chao, nirbhoye likho. Mittha asha diyo na, pookie. "Na" bolle-o ami mon kharap korbo na, karon amar heart toh tomar kache-i. Tomar sotti kotha ta-i amar kache shobcheye value-able. 🤍</p>
+ <label for="msg" hidden>Tomar moner kotha</label>
+ <textarea id="msg" maxlength="500" placeholder="Tomar moner kotha ekhane lekho... (na likhle-o cholbe)"></textarea>
  <button class="btn p" data-final="Yes">Yes, onek beshi ♡</button>
  <button class="btn s" data-final="No">No</button>
  <div class="err" id="e6" role="alert"></div>
@@ -224,14 +261,14 @@ async function typeText(el,text,tok){
 }
 async function typeConfession(){
  const tok=++typeToken,t1=$("#t1"),t2=$("#t2"),nb=$("#next5");
- t1.textContent="";t2.textContent="";nb.classList.remove("show");
+ t1.textContent="";t2.textContent="";nb.classList.remove("show");t2.classList.remove("done");
  if(reduced){t1.textContent=HEAD;t2.textContent=BODY;nb.classList.add("show");return;}
  await sleep(500);
  if(!await typeText(t1,HEAD,tok))return;
  await sleep(700);
  if(!await typeText(t2,BODY,tok))return;
  await sleep(500);
- if(tok===typeToken)nb.classList.add("show");
+ if(tok===typeToken){nb.classList.add("show");t2.classList.add("done");}
 }
 
 /* ---------- final submission ---------- */
@@ -244,13 +281,16 @@ async function submitFinal(ans,btn){
  state.lovesMe=ans;state.completedAt=new Date().toISOString();
  try{
   if(!db)throw {code:"INIT_FAILED"};
+  const msg=$("#msg").value.trim();
+  const payload={personName:state.personName,futureChoice:state.futureChoice,randomMessages:state.randomMessages,sillyBehavior:state.sillyBehavior,lovesMe:ans,startedAt:state.startedAt,completedAt:state.completedAt};
+  if(msg)payload.message=msg;
   pendingRef=pendingRef||db.ref(PATH).push(); /* same key on retry = no duplicates */
-  await withTimeout(pendingRef.set({personName:state.personName,futureChoice:state.futureChoice,randomMessages:state.randomMessages,sillyBehavior:state.sillyBehavior,lovesMe:ans,startedAt:state.startedAt,completedAt:state.completedAt}),10000);
+  await withTimeout(pendingRef.set(payload),10000);
   const yes=ans==="Yes";
   $("#fh").textContent=yes?"I knew it, pookie. ♡":"Thank you for being honest. ♡";
   $("#fp").textContent=yes?"Tomar answer amar mon ta happy kore dilo. I love you, always.":"Tomar feelings-ke ami respect kori. 🤍";
   revealWords($("#fh"));go(7);
-  if(yes)setTimeout(()=>{setStage(8);petals();},900);
+  if(yes)setTimeout(()=>{setStage(8);petals();finale();},900);
  }catch(e){
   console.error(e);
   err.textContent=(e.code==="INIT_FAILED"?"Firebase load hoyni. Page reload kore abar try koro.":"Save hoyni. "+fbMsg(e))+" Abar button-e tap koro.";
@@ -308,7 +348,9 @@ async function loadResponses(){
    const dl=document.createElement("dl");
    [["Future husband",r.futureChoice],["Random messages",r.randomMessages],["Silly behavior",r.sillyBehavior],["Completed",new Date(r.completedAt).toLocaleString()]].forEach(([k,val])=>{
     const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=val;dl.append(dt,dd);});
-   d.append(h,dl);list.append(d);
+   d.append(h,dl);
+   if(r.message){const m=document.createElement("p");m.textContent=r.message;m.style.cssText="margin-top:10px;padding:10px 12px;background:rgba(204,233,247,.5);border-radius:12px;white-space:pre-wrap;font-size:14.5px;word-break:break-word";d.append(m);}
+   list.append(d);
   }
  }catch(e){
   $("#count").textContent="";de.textContent="Data load hoyni. "+fbMsg(e);de.classList.add("show");
@@ -348,14 +390,14 @@ const fx=$("#fx");
 function spawn(cls,ch,n,tMin,tMax,dMax,life){
  for(let i=0;i<n;i++){
   const e=document.createElement("span");e.textContent=ch;if(cls)e.className=cls;
-  e.style.left=rnd(2,96)+"%";e.style.fontSize=rnd(11,22)+"px";
+  e.style.left=rnd(2,96)+"%";if(cls==="sp"){e.style.top=rnd(3,88)+"%";}e.style.fontSize=rnd(11,22)+"px";
   e.style.setProperty("--t",rnd(tMin,tMax)+"s");e.style.setProperty("--dl",rnd(0,dMax)+"s");
   e.style.setProperty("--x",rnd(-60,60)+"px");e.style.setProperty("--r",rnd(-200,200)+"deg");
   fx.append(e);if(life)setTimeout(()=>e.remove(),life);
  }
 }
-if(!reduced)spawn("","\u2661",9,12,22,14);
-function petals(){if(!reduced)spawn("pt","\u2665",36,5,9,3,13000);}
+if(!reduced){spawn("","\u2661",16,11,22,14);spawn("sp","\u2726",16,3,7,6);}
+function petals(){if(!reduced)spawn("pt","\u2665",60,5,9,4,15000);}
 function revealWords(el){
  const w=el.textContent.trim().split(/\s+/);el.textContent="";el.classList.add("reveal");
  w.forEach((t,i)=>{const s=document.createElement("span");s.textContent=t;s.style.animationDelay=(.12+i*.06)+"s";el.append(s," ");});
@@ -365,6 +407,15 @@ const cardEl=$(".card");
 if(!reduced&&matchMedia("(hover:hover)").matches)addEventListener("pointermove",e=>{
  cardEl.style.transform="perspective(1000px) rotateY("+((e.clientX/innerWidth-.5)*5)+"deg) rotateX("+(-(e.clientY/innerHeight-.5)*4)+"deg)";
 });
+
+/* ---------- bursts, trail, finale ---------- */
+function pop(cls,ch,x,y,v){const e=document.createElement("span");e.className=cls;e.textContent=ch;e.style.left=x+"px";e.style.top=y+"px";for(const k in v)e.style.setProperty(k,v[k]);document.body.append(e);setTimeout(()=>e.remove(),1300);}
+function ring(x,y,n,dMin,dMax){for(let i=0;i<n;i++){const a=i/n*6.283+rnd(-.25,.25),d=rnd(dMin,dMax);pop("bst",i%2?"\u2665":"\u2661",x,y,{"--bx":Math.cos(a)*d+"px","--by":Math.sin(a)*d+"px","--r":rnd(-70,70)+"deg","font-size":rnd(13,24)+"px"});}}
+function finale(){if(reduced)return;ring(innerWidth/2,innerHeight/2,22,90,260);setTimeout(()=>ring(innerWidth/2,innerHeight/2,16,60,180),350);}
+if(!reduced){
+ addEventListener("click",e=>{if(e.target.closest(".btn"))ring(e.clientX,e.clientY,8,40,85);});
+ if(matchMedia("(hover:hover)").matches){let lt=0;addEventListener("pointermove",e=>{const n=performance.now();if(n-lt<80)return;lt=n;pop("trl","\u2661",e.clientX+rnd(-6,6),e.clientY+rnd(-6,6),{"font-size":rnd(9,15)+"px"});});}
+}
 
 /* ---------- background music: first tap/click/key anywhere ---------- */
 const bgm=$("#bgm");bgm.volume=.65;
