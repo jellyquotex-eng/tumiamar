@@ -63,10 +63,29 @@ input:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
 .badge.y{background:#dcefd3;color:#2f6b2a}.badge.n{background:#f2dad8;color:#9a4a45}
 .rec dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;margin-top:10px;color:var(--mu)}.rec dd{color:var(--tx)}
 .mu{color:var(--mu);font-size:14px}
+#app{position:relative;z-index:1}
+.card{transition:transform .5s var(--ease)}
+#fx{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+#fx span{position:absolute;bottom:-30px;color:var(--sb);opacity:0;animation:rise var(--t) linear var(--dl) infinite}
+#fx span.pt{bottom:auto;top:-30px;color:var(--ol);animation:fall var(--t) ease-in var(--dl) forwards}
+@keyframes rise{10%{opacity:.5}90%{opacity:.3}100%{opacity:0;transform:translate(var(--x),-110vh) rotate(40deg)}}
+@keyframes fall{0%{opacity:0}10%{opacity:.85}100%{opacity:0;transform:translate(var(--x),108vh) rotate(var(--r))}}
+#tree{position:fixed;left:50%;bottom:0;height:min(84vh,920px);width:auto;transform:translateX(-50%);z-index:0;pointer-events:none;overflow:visible}
+.sway{transform-origin:200px 500px;animation:sway 9s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(1.2deg)}}
+.br{fill:none;stroke:var(--ol);stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset 1.9s var(--ease),opacity .2s}
+.br.on{stroke-dashoffset:0;opacity:1}
+.lf{font-family:sans-serif;text-anchor:middle;opacity:0;transform:scale(0);transform-box:fill-box;transform-origin:center;transition:opacity 1s ease var(--d),transform 1.3s cubic-bezier(.34,1.56,.64,1) var(--d)}
+.lf.on{opacity:.9;transform:scale(1)}
+.lf.on.pu{animation:pulse 3.2s ease-in-out var(--d) infinite}
+@keyframes pulse{50%{transform:scale(1.28)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
+<div id="fx" aria-hidden="true"></div>
+<svg id="tree" viewBox="0 0 400 500" aria-hidden="true"><ellipse cx="200" cy="499" rx="150" ry="9" fill="#667653" opacity=".13"/></svg>
+<audio id="bgm" src="SaveTik.io_7702804317950004481.mp3" loop preload="auto"></audio>
 <main id="app"><div class="card">
 <div class="bar" aria-hidden="true"><i id="prog"></i></div>
 
@@ -125,6 +144,7 @@ input:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
 <div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Admin panel"><div class="sheet" id="sheet">
  <div class="top"><h2 id="mt">Admin</h2><button class="x" id="mx" aria-label="Close">✕</button></div>
  <div id="login">
+  <p class="mu" style="margin-bottom:12px">Ekbar login korle ei device-e porer bar direct khulbe.</p>
   <input id="ae" type="email" autocomplete="username" placeholder="Admin email">
   <div class="row"><input id="ap" type="password" autocomplete="current-password" placeholder="Password"><button class="btn s eye" id="eye" type="button" aria-label="Show password">👁</button></div>
   <div class="err" id="ale" role="alert"></div>
@@ -171,7 +191,7 @@ function go(n){
  const cur=$(".screen.on"),next=$("#s"+n);
  const run=()=>{
   if(cur)cur.classList.remove("on","out");
-  next.classList.add("on");step=n;
+  next.classList.add("on");step=n;setStage(n);
   $("#prog").style.width=(n/TOTAL*100)+"%";
   if(n===1)$("#nameIn").focus({preventScroll:true});
   if(n===5)typeConfession();
@@ -229,7 +249,8 @@ async function submitFinal(ans,btn){
   const yes=ans==="Yes";
   $("#fh").textContent=yes?"I knew it, pookie. ♡":"Thank you for being honest. ♡";
   $("#fp").textContent=yes?"Tomar answer amar mon ta happy kore dilo. I love you, always.":"Tomar feelings-ke ami respect kori. 🤍";
-  go(7);
+  revealWords($("#fh"));go(7);
+  if(yes)setTimeout(()=>{setStage(8);petals();},900);
  }catch(e){
   console.error(e);
   err.textContent=(e.code==="INIT_FAILED"?"Firebase load hoyni. Page reload kore abar try koro.":"Save hoyni. "+fbMsg(e))+" Abar button-e tap koro.";
@@ -238,11 +259,12 @@ async function submitFinal(ans,btn){
 }
 
 /* ---------- admin modal ---------- */
-const ov=$("#ov");let lastP=0,cache=[];
+const ov=$("#ov");let lastP=0,cache=[],adminUser=null,loadingList=false;
+if(auth)auth.onAuthStateChanged(u=>{adminUser=u;if(isOpen()&&!u)showLogin();});
 const isOpen=()=>ov.classList.contains("vis");
 function openAdmin(){
  ov.classList.add("vis");requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add("show")));
- if(auth&&auth.currentUser){showDash();}else{showLogin();setTimeout(()=>$("#ae").focus(),60);}
+ if(adminUser){showDash();}else{showLogin();setTimeout(()=>$("#ae").focus(),60);}
 }
 function closeAdmin(){ov.classList.remove("show");setTimeout(()=>ov.classList.remove("vis"),reduced?0:320);}
 function showLogin(){$("#login").hidden=false;$("#dash").hidden=true;$("#mt").textContent="Admin";}
@@ -272,6 +294,7 @@ $("#unlock").onclick=unlock;
 ["ae","ap"].forEach(id=>$("#"+id).addEventListener("keydown",e=>{if(e.key==="Enter")unlock();}));
 const ansBadge=v=>{const s=document.createElement("span");s.className="badge "+(v==="Yes"?"y":"n");s.textContent=v;return s;};
 async function loadResponses(){
+ if(loadingList)return;loadingList=true;
  const list=$("#list"),de=$("#de");de.classList.remove("show");list.textContent="";$("#count").textContent="Loading...";
  try{
   const snap=await withTimeout(db.ref(PATH).once("value"),12000);
@@ -290,7 +313,7 @@ async function loadResponses(){
  }catch(e){
   $("#count").textContent="";de.textContent="Data load hoyni. "+fbMsg(e);de.classList.add("show");
   if(/permission/i.test(e.code||""))auth.signOut().then(showLogin);
- }
+ }finally{loadingList=false;}
 }
 $("#refresh").onclick=loadResponses;
 $("#logout").onclick=async()=>{await auth.signOut();cache=[];$("#list").textContent="";showLogin();};
@@ -298,6 +321,59 @@ $("#export").onclick=()=>{
  const blob=new Blob([JSON.stringify(cache,null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pookiebook-responses.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
+/* ---------- love tree ---------- */
+const NS="http://www.w3.org/2000/svg",tree=$("#tree"),rnd=(a,b)=>a+Math.random()*(b-a);
+const COL=["#667653","#7BB8DC","#CCE9F7","#3F4C36","#8fa57a"];
+const BR=[["M200 500C196 430 204 370 198 300",1,0,9],["M199 360C170 340 140 320 110 270",2,6,6],["M200 340C235 320 265 300 295 245",2,6,6],["M198 300C185 260 160 230 150 175",3,5,4.5],["M198 300C215 255 245 225 255 170",3,5,4.5],["M198 300C200 250 196 200 200 140",4,5,4.5],["M170 195C150 170 120 160 105 130",5,4,3],["M240 200C260 175 285 165 300 135",5,4,3],["M200 190C190 160 180 140 170 105",6,4,3]];
+function mkHeart(g,x,y,st,size,delay){
+ const t=document.createElementNS(NS,"text");
+ t.textContent="\u2665";t.setAttribute("x",x);t.setAttribute("y",y);t.setAttribute("font-size",size);
+ t.setAttribute("fill",COL[Math.floor(Math.random()*COL.length)]);t.setAttribute("data-s",st);
+ t.setAttribute("class","lf"+(Math.random()<.25?" pu":""));t.style.setProperty("--d",delay+"s");g.append(t);
+}
+(function buildTree(){
+ const g=document.createElementNS(NS,"g");g.setAttribute("class","sway");tree.append(g);
+ BR.forEach(([d,st,n,w])=>{
+  const p=document.createElementNS(NS,"path");
+  p.setAttribute("d",d);p.setAttribute("pathLength","1");p.setAttribute("class","br");p.setAttribute("data-s",st);p.setAttribute("stroke-width",w);g.append(p);
+  const L=p.getTotalLength();
+  for(let i=0;i<n;i++){const pt=p.getPointAtLength(L*(.25+.75*(i+Math.random()*.6)/n));mkHeart(g,pt.x+rnd(-14,14),pt.y+rnd(-14,14),st,rnd(11,20),rnd(.9,2.2));}
+ });
+ for(let i=0;i<38;i++){const a=rnd(0,Math.PI*2),r=Math.sqrt(Math.random());mkHeart(g,200+Math.cos(a)*r*140,155+Math.sin(a)*r*105,8,rnd(10,22),rnd(.1,2.4));}
+})();
+function setStage(n){tree.querySelectorAll("[data-s]").forEach(e=>e.classList.toggle("on",+e.dataset.s<=n));}
+
+/* ---------- ambient hearts, petals, word reveal, tilt ---------- */
+const fx=$("#fx");
+function spawn(cls,ch,n,tMin,tMax,dMax,life){
+ for(let i=0;i<n;i++){
+  const e=document.createElement("span");e.textContent=ch;if(cls)e.className=cls;
+  e.style.left=rnd(2,96)+"%";e.style.fontSize=rnd(11,22)+"px";
+  e.style.setProperty("--t",rnd(tMin,tMax)+"s");e.style.setProperty("--dl",rnd(0,dMax)+"s");
+  e.style.setProperty("--x",rnd(-60,60)+"px");e.style.setProperty("--r",rnd(-200,200)+"deg");
+  fx.append(e);if(life)setTimeout(()=>e.remove(),life);
+ }
+}
+if(!reduced)spawn("","\u2661",9,12,22,14);
+function petals(){if(!reduced)spawn("pt","\u2665",36,5,9,3,13000);}
+function revealWords(el){
+ const w=el.textContent.trim().split(/\s+/);el.textContent="";el.classList.add("reveal");
+ w.forEach((t,i)=>{const s=document.createElement("span");s.textContent=t;s.style.animationDelay=(.12+i*.06)+"s";el.append(s," ");});
+}
+$$(".screen h1:not(#fh),.screen h2").forEach(revealWords);
+const cardEl=$(".card");
+if(!reduced&&matchMedia("(hover:hover)").matches)addEventListener("pointermove",e=>{
+ cardEl.style.transform="perspective(1000px) rotateY("+((e.clientX/innerWidth-.5)*5)+"deg) rotateX("+(-(e.clientY/innerHeight-.5)*4)+"deg)";
+});
+
+/* ---------- background music: first tap/click/key anywhere ---------- */
+const bgm=$("#bgm");bgm.volume=.65;
+const gestures=["pointerup","click","touchend","keydown"];
+function startMusic(){
+ bgm.play().then(()=>gestures.forEach(g=>removeEventListener(g,startMusic))).catch(()=>{});
+}
+gestures.forEach(g=>addEventListener(g,startMusic,{passive:true}));
+document.addEventListener("visibilitychange",()=>{if(document.hidden)bgm.pause();else if(!bgm.paused||bgm.currentTime>0)bgm.play().catch(()=>{});});
 go(1);
 </script>
 </body>
