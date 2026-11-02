@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBFAF5">
+<title>Pookiebook ♡</title>
+<style>
+:root{--ol:#667653;--dol:#3F4C36;--bb:#CCE9F7;--sb:#7BB8DC;--off:#FBFAF5;--w:#fff;--tx:#202820;--mu:#718078;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",sans-serif;color:var(--tx);background:radial-gradient(120% 70% at 85% -10%,var(--bb),transparent 60%),radial-gradient(90% 60% at 0% 110%,#e3ead9,transparent 60%),var(--off);overflow-x:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-font-smoothing:antialiased}
+#app{min-height:100%;display:grid;place-items:center;padding:24px 18px}
+.card{width:min(100%,460px);background:rgba(255,255,255,.72);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);border:1px solid rgba(255,255,255,.9);box-shadow:0 1px 0 #fff inset,0 20px 50px -20px rgba(63,76,54,.28),0 2px 8px rgba(63,76,54,.06);border-radius:30px;padding:30px 24px 26px;position:relative}
+.bar{height:4px;border-radius:4px;background:rgba(102,118,83,.14);overflow:hidden;margin:0 auto 26px}
+.bar i{display:block;height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,var(--sb),var(--ol));transition:width .7s var(--ease)}
+.screen{display:none}
+.screen.on{display:block;animation:in .65s var(--ease) both}
+.screen.out{display:block;animation:out .28s ease both}
+@keyframes in{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes out{to{opacity:0;transform:translateY(-10px)}}
+.heart{display:inline-block;color:var(--sb);font-size:22px;margin-bottom:12px;animation:float 4s ease-in-out infinite}
+.heart.beat{font-size:44px;color:var(--ol);animation:beat 1.4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-5px)}}
+@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.12)}70%{transform:scale(1)}}
+h1,h2{font-weight:700;letter-spacing:-.02em;line-height:1.18;color:var(--dol)}
+h1{font-size:clamp(26px,7vw,32px)}h2{font-size:clamp(23px,6vw,28px)}
+.sub{color:var(--mu);font-size:16px;line-height:1.55;margin:12px 0 24px}
+.reveal span{display:inline-block;opacity:0;transform:translateY(8px);animation:in .6s var(--ease) forwards}
+.chip{display:inline-block;background:var(--bb);color:var(--dol);border-radius:99px;padding:4px 12px;font-size:13px;font-weight:600;margin-bottom:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+input{width:100%;font:inherit;font-size:17px;padding:15px 16px;border-radius:16px;border:1px solid rgba(63,76,54,.16);background:var(--w);color:var(--tx);outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:14px}
+input:focus{border-color:var(--sb);box-shadow:0 0 0 4px rgba(123,184,220,.28)}
+.btn{display:block;width:100%;font:inherit;font-size:17px;font-weight:600;padding:16px 18px;border-radius:99px;border:0;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s,background .2s,opacity .2s;margin-top:10px;min-height:54px}
+.btn.p{color:#fff;background:linear-gradient(180deg,var(--ol),var(--dol));box-shadow:0 8px 20px -8px rgba(63,76,54,.6)}
+.btn.s{color:var(--dol);background:rgba(204,233,247,.7);border:1px solid rgba(123,184,220,.5)}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+:focus-visible{outline:3px solid var(--sb);outline-offset:3px}
+.err{color:#9a4a45;background:rgba(154,74,69,.09);border-radius:14px;padding:10px 14px;font-size:14px;margin-top:12px;display:none}
+.err.show{display:block;animation:in .4s var(--ease)}
+#t1{color:var(--mu);font-size:18px;min-height:1.5em;margin-bottom:16px}
+#t2{font-size:clamp(22px,6vw,27px);line-height:1.45;font-weight:600;color:var(--dol);white-space:pre-wrap;min-height:6.5em;letter-spacing:-.01em}
+.caret::after{content:"";display:inline-block;width:2px;height:1em;background:var(--sb);margin-left:2px;vertical-align:-.12em;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+#next5{opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+#next5.show{opacity:1;pointer-events:auto;transform:none}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.final{text-align:center;padding:14px 0}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(32,40,32,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:18px;z-index:10;opacity:0;transition:opacity .3s}
+.ov.show{opacity:1}.ov.vis{display:flex}
+.sheet{width:min(100%,520px);max-height:88vh;overflow:auto;background:var(--off);border-radius:28px;padding:24px;box-shadow:0 30px 80px -20px rgba(0,0,0,.4);transform:translateY(24px) scale(.96);transition:transform .45s var(--ease)}
+.ov.show .sheet{transform:none}
+.row{display:flex;gap:8px;align-items:center}.row input{margin:0}
+.eye{flex:none;width:52px;margin:0;padding:0}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.x{background:rgba(63,76,54,.08);border:0;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;color:var(--dol)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}.tools .btn{width:auto;flex:1;margin:0;font-size:14px;padding:10px 14px;min-height:44px}
+.rec{background:#fff;border:1px solid rgba(63,76,54,.1);border-radius:18px;padding:14px;margin-bottom:10px}
+.rec h3{font-size:17px;display:flex;justify-content:space-between;gap:8px;align-items:center;word-break:break-word}
+.badge{flex:none;font-size:13px;font-weight:700;padding:4px 12px;border-radius:99px}
+.badge.y{background:#dcefd3;color:#2f6b2a}.badge.n{background:#f2dad8;color:#9a4a45}
+.rec dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;margin-top:10px;color:var(--mu)}.rec dd{color:var(--tx)}
+.mu{color:var(--mu);font-size:14px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<main id="app"><div class="card">
+<div class="bar" aria-hidden="true"><i id="prog"></i></div>
+
+<section class="screen" id="s1" aria-labelledby="h1">
+ <div class="heart" aria-hidden="true">♡</div>
+ <h1 id="h1">Ekta chhoto question ache, pookie. ♡</h1>
+ <p class="sub">Tumi tomar future husband hisebe kake choose korte chao? Tar naam ta ekhane likho.</p>
+ <label for="nameIn" hidden>Naam</label>
+ <input id="nameIn" maxlength="60" autocomplete="off" placeholder="Naam ta ekhane lekho...">
+ <div class="err" id="e1" role="alert">Naam ta likho age, pookie. ♡</div>
+ <button class="btn p" id="b1">Continue ↗</button>
+</section>
+
+<section class="screen" id="s2"><span class="chip" id="chip"></span>
+ <h2>Tumi ki oke mon theke future husband hisebe choose korcho?</h2>
+ <p class="sub">Naki just emni emni choose korcho? Nijer moner kotha bolo. ♡</p>
+ <button class="btn p" data-k="futureChoice" data-v="Yes">Yes, mon theke ♡</button>
+ <button class="btn s" data-k="futureChoice" data-v="No">Na, emni</button>
+</section>
+
+<section class="screen" id="s3">
+ <h2>Ami je eto kichu pathai, tomar ki boring lage?</h2>
+ <p class="sub">Random message, cute edits, amar ajaira ajaira kotha—egulo ki tomar bhalo lage, naki tumi just shojjo koro? 😭</p>
+ <button class="btn p" data-k="randomMessages" data-v="Yes">Bhalo lage ♡</button>
+ <button class="btn s" data-k="randomMessages" data-v="No">Boring lage</button>
+</section>
+
+<section class="screen" id="s4">
+ <h2>Ami majhe majhe BC-r moto behave kori, tai na? 😭</h2>
+ <p class="sub">Ar jokhon emon ajaira jinis pathai, tumi ki secretly enjoy koro, naki mone mone bolo 'abar shuru korlo'? 🤍</p>
+ <button class="btn p" data-k="sillyBehavior" data-v="Yes">Cute lage, continue koro</button>
+ <button class="btn s" data-k="sillyBehavior" data-v="No">Ektu komao 😭</button>
+</section>
+
+<section class="screen" id="s5">
+ <p id="t1" aria-live="polite"></p>
+ <p id="t2" aria-live="polite"></p>
+ <button class="btn p" id="next5">Ekta last question... ♡</button>
+</section>
+
+<section class="screen" id="s6" style="text-align:center">
+ <div class="heart beat" aria-hidden="true">♡</div>
+ <h2>Tumi ki amake shotti shotti bhalobasho?</h2>
+ <p class="sub">Mon theke bolo. Tomar answer amar kache important. ♡</p>
+ <button class="btn p" data-final="Yes">Yes, onek beshi ♡</button>
+ <button class="btn s" data-final="No">No</button>
+ <div class="err" id="e6" role="alert"></div>
+</section>
+
+<section class="screen" id="s7"><div class="final">
+ <div class="heart" aria-hidden="true">♡</div>
+ <h1 id="fh"></h1><p class="sub" id="fp"></p>
+</div></section>
+</div></main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Admin panel"><div class="sheet" id="sheet">
+ <div class="top"><h2 id="mt">Admin</h2><button class="x" id="mx" aria-label="Close">✕</button></div>
+ <div id="login">
+  <input id="ae" type="email" autocomplete="username" placeholder="Admin email">
+  <div class="row"><input id="ap" type="password" autocomplete="current-password" placeholder="Password"><button class="btn s eye" id="eye" type="button" aria-label="Show password">👁</button></div>
+  <div class="err" id="ale" role="alert"></div>
+  <button class="btn p" id="unlock">Unlock</button>
+ </div>
+ <div id="dash" hidden>
+  <p class="mu" id="count"></p>
+  <div class="tools"><button class="btn s" id="refresh">Refresh</button><button class="btn s" id="export">Export JSON</button><button class="btn s" id="logout">Logout</button></div>
+  <div class="err" id="de" role="alert"></div>
+  <div id="list"></div>
+ </div>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-auth-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-database-compat.min.js"></script>
+<script>
+"use strict";
+const firebaseConfig={apiKey:"AIzaSyBumtPSSwT7uTjyQvO8Pp3UIfDuXy00ASw",authDomain:"pookiebook-6df6e.firebaseapp.com",databaseURL:"https://pookiebook-6df6e-default-rtdb.firebaseio.com",projectId:"pookiebook-6df6e",storageBucket:"pookiebook-6df6e.firebasestorage.app",messagingSenderId:"687125394418",appId:"1:687125394418:web:1cbbd784d3497c1219716b",measurementId:"G-LR4T7Q3LCE"};
+const PATH="pookiebookResponses",TOTAL=7;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- state ---------- */
+const state={personName:"",futureChoice:null,randomMessages:null,sillyBehavior:null,lovesMe:null,startedAt:new Date().toISOString(),completedAt:null};
+let step=0,busy=false,pendingRef=null,typeToken=0;
+
+/* ---------- firebase ---------- */
+let db=null,auth=null;
+try{firebase.initializeApp(firebaseConfig);db=firebase.database();auth=firebase.auth();}catch(e){console.error("Firebase init failed",e);}
+const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,j)=>setTimeout(()=>j({code:"TIMEOUT"}),ms))]);
+function fbMsg(e){
+ const c=(e&&(e.code||""))+"";
+ if(/permission|PERMISSION/.test(c))return "Permission denied: Firebase rules ei access allow kore na.";
+ if(c==="TIMEOUT"||/network/i.test(c))return "Network problem. Internet check kore abar try koro.";
+ if(/invalid-credential|wrong-password|user-not-found|invalid-email/.test(c))return "Email ba password thik na.";
+ if(/too-many/.test(c))return "Onek beshi try hoyeche. Kichukkhon pore abar try koro.";
+ return "Kichu ekta problem hoyeche"+(c?" ("+c+")":"")+".";
+}
+
+/* ---------- screens ---------- */
+function go(n){
+ const cur=$(".screen.on"),next=$("#s"+n);
+ const run=()=>{
+  if(cur)cur.classList.remove("on","out");
+  next.classList.add("on");step=n;
+  $("#prog").style.width=(n/TOTAL*100)+"%";
+  if(n===1)$("#nameIn").focus({preventScroll:true});
+  if(n===5)typeConfession();
+ };
+ if(cur&&!reduced){cur.classList.add("out");setTimeout(run,280);}else run();
+}
+function submitName(){
+ const v=$("#nameIn").value.replace(/\s+/g," ").trim();
+ if(!v){$("#e1").classList.add("show");$("#nameIn").focus();return;}
+ $("#e1").classList.remove("show");
+ state.personName=v;$("#chip").textContent="♡ "+v; /* textContent = safe escaping */
+ go(2);
+}
+$("#b1").onclick=submitName;
+$("#nameIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();submitName();}});
+$$("[data-k]").forEach(b=>b.onclick=()=>{state[b.dataset.k]=b.dataset.v;go(step+1);});
+$("#next5").onclick=()=>go(6);
+
+/* ---------- typing confession ---------- */
+const HEAD="Honestly ekta kotha boli?";
+const BODY="Tomake je valobasha beshechi ami,\ntar 1% o onno karo proti\nfeelings ashe nai :) 🥹❤️‍🩹";
+async function typeText(el,text,tok){
+ el.classList.add("caret");
+ for(const ch of Array.from(text)){
+  if(tok!==typeToken)return false;
+  el.textContent+=ch;
+  await sleep(/[,?\n]/.test(ch)?320:ch===" "?55:42+Math.random()*38);
+ }
+ el.classList.remove("caret");return true;
+}
+async function typeConfession(){
+ const tok=++typeToken,t1=$("#t1"),t2=$("#t2"),nb=$("#next5");
+ t1.textContent="";t2.textContent="";nb.classList.remove("show");
+ if(reduced){t1.textContent=HEAD;t2.textContent=BODY;nb.classList.add("show");return;}
+ await sleep(500);
+ if(!await typeText(t1,HEAD,tok))return;
+ await sleep(700);
+ if(!await typeText(t2,BODY,tok))return;
+ await sleep(500);
+ if(tok===typeToken)nb.classList.add("show");
+}
+
+/* ---------- final submission ---------- */
+$$("[data-final]").forEach(b=>b.onclick=()=>submitFinal(b.dataset.final,b));
+async function submitFinal(ans,btn){
+ if(busy)return; busy=true; /* blocks double clicks */
+ const all=$$("[data-final]"),err=$("#e6"),label=btn.textContent;
+ err.classList.remove("show");all.forEach(x=>x.disabled=true);
+ btn.innerHTML='<span class="spin"></span>Save hocche...';
+ state.lovesMe=ans;state.completedAt=new Date().toISOString();
+ try{
+  if(!db)throw {code:"INIT_FAILED"};
+  pendingRef=pendingRef||db.ref(PATH).push(); /* same key on retry = no duplicates */
+  await withTimeout(pendingRef.set({personName:state.personName,futureChoice:state.futureChoice,randomMessages:state.randomMessages,sillyBehavior:state.sillyBehavior,lovesMe:ans,startedAt:state.startedAt,completedAt:state.completedAt}),10000);
+  const yes=ans==="Yes";
+  $("#fh").textContent=yes?"I knew it, pookie. ♡":"Thank you for being honest. ♡";
+  $("#fp").textContent=yes?"Tomar answer amar mon ta happy kore dilo. I love you, always.":"Tomar feelings-ke ami respect kori. 🤍";
+  go(7);
+ }catch(e){
+  console.error(e);
+  err.textContent=(e.code==="INIT_FAILED"?"Firebase load hoyni. Page reload kore abar try koro.":"Save hoyni. "+fbMsg(e))+" Abar button-e tap koro.";
+  err.classList.add("show");btn.textContent=label;all.forEach(x=>x.disabled=false);
+ }finally{busy=false;}
+}
+
+/* ---------- admin modal ---------- */
+const ov=$("#ov");let lastP=0,cache=[];
+const isOpen=()=>ov.classList.contains("vis");
+function openAdmin(){
+ ov.classList.add("vis");requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add("show")));
+ if(auth&&auth.currentUser){showDash();}else{showLogin();setTimeout(()=>$("#ae").focus(),60);}
+}
+function closeAdmin(){ov.classList.remove("show");setTimeout(()=>ov.classList.remove("vis"),reduced?0:320);}
+function showLogin(){$("#login").hidden=false;$("#dash").hidden=true;$("#mt").textContent="Admin";}
+function showDash(){$("#login").hidden=true;$("#dash").hidden=false;$("#mt").textContent="Responses";loadResponses();}
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&isOpen()){closeAdmin();return;}
+ if(e.key!=="p"&&e.key!=="P"||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
+ const t=e.target;
+ if(t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable))return;
+ const now=Date.now();
+ if(now-lastP<500){lastP=0;if(!isOpen())openAdmin();}else lastP=now;
+});
+$("#mx").onclick=closeAdmin;
+ov.addEventListener("mousedown",e=>{if(e.target===ov)closeAdmin();});
+$("#eye").onclick=()=>{const p=$("#ap"),s=p.type==="password";p.type=s?"text":"password";$("#eye").setAttribute("aria-label",s?"Hide password":"Show password");};
+async function unlock(){
+ const em=$("#ae").value.trim(),pw=$("#ap").value,err=$("#ale"),b=$("#unlock");
+ err.classList.remove("show");
+ if(!em||!pw){err.textContent="Email ar password duto-i dao.";err.classList.add("show");return;}
+ if(!auth){err.textContent="Firebase load hoyni.";err.classList.add("show");return;}
+ b.disabled=true;b.textContent="Checking...";
+ try{await auth.signInWithEmailAndPassword(em,pw);$("#ap").value="";showDash();}
+ catch(e){err.textContent=fbMsg(e);err.classList.add("show");}
+ finally{b.disabled=false;b.textContent="Unlock";}
+}
+$("#unlock").onclick=unlock;
+["ae","ap"].forEach(id=>$("#"+id).addEventListener("keydown",e=>{if(e.key==="Enter")unlock();}));
+const ansBadge=v=>{const s=document.createElement("span");s.className="badge "+(v==="Yes"?"y":"n");s.textContent=v;return s;};
+async function loadResponses(){
+ const list=$("#list"),de=$("#de");de.classList.remove("show");list.textContent="";$("#count").textContent="Loading...";
+ try{
+  const snap=await withTimeout(db.ref(PATH).once("value"),12000);
+  const v=snap.val()||{};
+  cache=Object.entries(v).map(([id,r])=>({id,...r})).sort((a,b)=>String(b.completedAt).localeCompare(String(a.completedAt)));
+  $("#count").textContent="Total submissions: "+cache.length;
+  if(!cache.length){const p=document.createElement("p");p.className="mu";p.textContent="Ekhono kono submission nai.";list.append(p);return;}
+  for(const r of cache){
+   const d=document.createElement("div");d.className="rec";
+   const h=document.createElement("h3"),n=document.createElement("span");n.textContent=r.personName;h.append(n,ansBadge(r.lovesMe));
+   const dl=document.createElement("dl");
+   [["Future husband",r.futureChoice],["Random messages",r.randomMessages],["Silly behavior",r.sillyBehavior],["Completed",new Date(r.completedAt).toLocaleString()]].forEach(([k,val])=>{
+    const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=val;dl.append(dt,dd);});
+   d.append(h,dl);list.append(d);
+  }
+ }catch(e){
+  $("#count").textContent="";de.textContent="Data load hoyni. "+fbMsg(e);de.classList.add("show");
+  if(/permission/i.test(e.code||""))auth.signOut().then(showLogin);
+ }
+}
+$("#refresh").onclick=loadResponses;
+$("#logout").onclick=async()=>{await auth.signOut();cache=[];$("#list").textContent="";showLogin();};
+$("#export").onclick=()=>{
+ const blob=new Blob([JSON.stringify(cache,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pookiebook-responses.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+go(1);
+</script>
+</body>
+</html>
