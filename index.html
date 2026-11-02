@@ -214,17 +214,10 @@ body::after{background:#dfe8d2;bottom:-20vmax;left:-16vmax;animation-delay:-8s}
 
 <div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Admin panel"><div class="sheet" id="sheet">
  <div class="top"><h2 id="mt">Admin</h2><button class="x" id="mx" aria-label="Close">✕</button></div>
- <div id="login">
-  <p class="mu" style="margin-bottom:12px">Ekbar login korle ei device-e porer bar direct khulbe.</p>
-  <input id="ae" type="email" autocomplete="username" placeholder="Admin email">
-  <div class="row"><input id="ap" type="password" autocomplete="current-password" placeholder="Password"><button class="btn s eye" id="eye" type="button" aria-label="Show password">👁</button></div>
-  <div class="err" id="ale" role="alert"></div>
-  <button class="btn p" id="unlock">Unlock</button>
- </div>
- <div id="dash" hidden>
+ <div id="dash">
   <p class="mu" id="count"></p>
   <div class="stats" id="stats"></div>
-  <div class="tools"><button class="btn s" id="refresh">Refresh</button><button class="btn s" id="export">Export JSON</button><button class="btn s" id="logout">Logout</button></div>
+  <div class="tools"><button class="btn s" id="refresh">Refresh</button><button class="btn s" id="export">Export JSON</button></div>
   <div class="err" id="de" role="alert"></div>
   <div id="list"></div>
  </div>
@@ -339,16 +332,12 @@ async function submitFinal(ans,btn){
 
 /* ---------- admin modal ---------- */
 const ov=$("#ov");let lastP=0,cache=[],adminUser=null,loadingList=false;
-if(auth)auth.onAuthStateChanged(u=>{adminUser=u;if(isOpen()){if(u)showDash();else showLogin();}});
 const isOpen=()=>ov.classList.contains("vis");
 function openAdmin(){
  ov.classList.add("vis");requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add("show")));
- const u=(auth&&auth.currentUser)||adminUser;
- if(u){adminUser=u;showDash();}else{showLogin();setTimeout(()=>$("#ae").focus(),120);}
+ $("#mt").textContent="Responses";loadResponses();
 }
 function closeAdmin(){ov.classList.remove("show");setTimeout(()=>ov.classList.remove("vis"),reduced?0:320);}
-function showLogin(){$("#login").hidden=false;$("#dash").hidden=true;$("#mt").textContent="Admin";}
-function showDash(){$("#login").hidden=true;$("#dash").hidden=false;$("#mt").textContent="Responses";loadResponses();}
 
 /* keyboard: P ke 2 bar druto press korlei admin panel (toggle) */
 document.addEventListener("keydown",e=>{
@@ -366,19 +355,6 @@ $(".bar").addEventListener("dblclick",()=>{if(!isOpen())openAdmin();});
 
 $("#mx").onclick=closeAdmin;
 ov.addEventListener("mousedown",e=>{if(e.target===ov)closeAdmin();});
-$("#eye").onclick=()=>{const p=$("#ap"),s=p.type==="password";p.type=s?"text":"password";$("#eye").setAttribute("aria-label",s?"Hide password":"Show password");};
-async function unlock(){
- const em=$("#ae").value.trim(),pw=$("#ap").value,err=$("#ale"),b=$("#unlock");
- err.classList.remove("show");
- if(!em||!pw){err.textContent="Email ar password duto-i dao.";err.classList.add("show");return;}
- if(!auth){err.textContent="Firebase load hoyni.";err.classList.add("show");return;}
- b.disabled=true;b.textContent="Checking...";
- try{await auth.signInWithEmailAndPassword(em,pw);$("#ap").value="";showDash();}
- catch(e){err.textContent=fbMsg(e);err.classList.add("show");}
- finally{b.disabled=false;b.textContent="Unlock";}
-}
-$("#unlock").onclick=unlock;
-["ae","ap"].forEach(id=>$("#"+id).addEventListener("keydown",e=>{if(e.key==="Enter")unlock();}));
 const ansBadge=v=>{const s=document.createElement("span");s.className="badge "+(v==="Yes"?"y":"n");s.textContent=v;return s;};
 function countUp(el,to){
  if(reduced||!to){el.textContent=to;return;}
@@ -400,7 +376,7 @@ async function loadResponses(){
   const snap=await withTimeout(db.ref(PATH).once("value"),12000);
   const v=snap.val()||{};
   cache=Object.entries(v).map(([id,r])=>({id,...r})).sort((a,b)=>String(b.completedAt).localeCompare(String(a.completedAt)));
-  $("#count").textContent=(adminUser&&adminUser.email?adminUser.email+" · ":"")+"Total submissions: "+cache.length;
+  $("#count").textContent="Total submissions: "+cache.length;
   renderStats();
   if(!cache.length){const p=document.createElement("p");p.className="mu";p.textContent="Ekhono kono submission nai.";list.append(p);return;}
   cache.forEach((r,i)=>{
@@ -411,22 +387,13 @@ async function loadResponses(){
     const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=val;dl.append(dt,dd);});
    d.append(h,dl);
    if(r.message){const m=document.createElement("p");m.textContent=r.message;m.style.cssText="margin-top:10px;padding:10px 12px;background:rgba(204,233,247,.5);border-radius:12px;white-space:pre-wrap;font-size:14.5px;word-break:break-word";d.append(m);}
-   const del=document.createElement("button");del.className="del";del.textContent="Delete";
-   del.onclick=async()=>{
-    if(!confirm("Ei response delete korbe?"))return;
-    try{await db.ref(PATH+"/"+r.id).remove();d.style.transition="all .4s";d.style.opacity="0";d.style.transform="translateX(40px)";setTimeout(()=>{loadingList=false;loadResponses();},380);}
-    catch(e){de.textContent="Delete hoyni. "+fbMsg(e);de.classList.add("show");}
-   };
-   d.append(del);
    list.append(d);
   });
  }catch(e){
   $("#count").textContent="";de.textContent="Data load hoyni. "+fbMsg(e);de.classList.add("show");
-  if(/permission/i.test(e.code||""))auth.signOut().then(showLogin);
  }finally{loadingList=false;}
 }
 $("#refresh").onclick=loadResponses;
-$("#logout").onclick=async()=>{await auth.signOut();cache=[];$("#list").textContent="";$("#stats").textContent="";showLogin();};
 $("#export").onclick=()=>{
  const blob=new Blob([JSON.stringify(cache,null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pookiebook-responses.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
